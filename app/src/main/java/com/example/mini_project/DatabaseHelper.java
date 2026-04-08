@@ -11,38 +11,44 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final String DB_NAME    = "lost_found.db";
-    private static final int    DB_VERSION = 2; // bumped: added poster/status/timestamp cols
+    private static final String DATABASE_NAME    = "campus_lost_found.db";
+    private static final int    DATABASE_VERSION = 3;   // v3 adds 'category'
 
-    public static final String TABLE_ITEMS      = "items";
-    public static final String COL_ID           = "id";
-    public static final String COL_NAME         = "name";
-    public static final String COL_DESC         = "desc";
-    public static final String COL_LOCATION     = "location";
-    public static final String COL_TYPE         = "type";
-    public static final String COL_IMAGE        = "image";
-    public static final String COL_POSTER_NAME  = "poster_name";
-    public static final String COL_POSTER_CONTACT = "poster_contact";
-    public static final String COL_STATUS       = "status";
-    public static final String COL_CREATED_AT   = "created_at";
+    private static final String TABLE_ITEMS = "items";
+
+    // Column names
+    private static final String COL_ID             = "_id";
+    private static final String COL_NAME           = "name";
+    private static final String COL_DESC           = "description";
+    private static final String COL_LOCATION       = "location";
+    private static final String COL_TYPE           = "type";
+    private static final String COL_IMAGE_PATH     = "image_path";
+    private static final String COL_POSTER_NAME    = "poster_name";
+    private static final String COL_POSTER_CONTACT = "poster_contact";
+    private static final String COL_STATUS         = "status";
+    private static final String COL_CREATED_AT     = "created_at";
+    private static final String COL_CATEGORY       = "category";
 
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_ITEMS + " (" +
-                    COL_ID              + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COL_NAME            + " TEXT NOT NULL, " +
-                    COL_DESC            + " TEXT, " +
-                    COL_LOCATION        + " TEXT, " +
-                    COL_TYPE            + " TEXT, " +
-                    COL_IMAGE           + " TEXT, " +
-                    COL_POSTER_NAME     + " TEXT, " +
-                    COL_POSTER_CONTACT  + " TEXT, " +
-                    COL_STATUS          + " TEXT DEFAULT 'active', " +
-                    COL_CREATED_AT      + " INTEGER" +
-                    ")";
+            COL_ID             + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COL_NAME           + " TEXT NOT NULL, " +
+            COL_DESC           + " TEXT, " +
+            COL_LOCATION       + " TEXT, " +
+            COL_TYPE           + " TEXT, " +
+            COL_IMAGE_PATH     + " TEXT, " +
+            COL_POSTER_NAME    + " TEXT, " +
+            COL_POSTER_CONTACT + " TEXT, " +
+            COL_STATUS         + " TEXT DEFAULT 'active', " +
+            COL_CREATED_AT     + " INTEGER DEFAULT 0, " +
+            COL_CATEGORY       + " TEXT DEFAULT 'Other'" +
+            ")";
 
     public DatabaseHelper(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
+    // ── Schema creation ───────────────────────────────────────────
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -51,76 +57,90 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Non-destructive migration: add new columns to existing DB
+        // Non-destructive: add only missing columns, preserving user data
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_POSTER_NAME    + " TEXT");
             db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_POSTER_CONTACT + " TEXT");
-            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_STATUS + " TEXT DEFAULT 'active'");
-            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_CREATED_AT + " INTEGER DEFAULT 0");
+            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_STATUS         + " TEXT DEFAULT 'active'");
+            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_CREATED_AT     + " INTEGER DEFAULT 0");
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_CATEGORY + " TEXT DEFAULT 'Other'");
         }
     }
 
-    // ── Write ─────────────────────────────────────────────────────
+    // ── CRUD ──────────────────────────────────────────────────────
 
-    /** Insert a new item. Returns the row id, or -1 on failure. */
     public long insertItem(Item item) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues v = new ContentValues();
-        v.put(COL_NAME,           item.getName());
-        v.put(COL_DESC,           item.getDesc());
-        v.put(COL_LOCATION,       item.getLocation());
-        v.put(COL_TYPE,           item.getType());
-        v.put(COL_IMAGE,          item.getImagePath());
-        v.put(COL_POSTER_NAME,    item.getPosterName());
-        v.put(COL_POSTER_CONTACT, item.getPosterContact());
-        v.put(COL_STATUS,         item.getStatus());
-        v.put(COL_CREATED_AT,     item.getCreatedAt());
-        return db.insert(TABLE_ITEMS, null, v);
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME,           item.getName());
+        values.put(COL_DESC,           item.getDesc());
+        values.put(COL_LOCATION,       item.getLocation());
+        values.put(COL_TYPE,           item.getType());
+        values.put(COL_IMAGE_PATH,     item.getImagePath());
+        values.put(COL_POSTER_NAME,    item.getPosterName());
+        values.put(COL_POSTER_CONTACT, item.getPosterContact());
+        values.put(COL_STATUS,         item.getStatus() != null ? item.getStatus() : "active");
+        values.put(COL_CREATED_AT,     item.getCreatedAt());
+        values.put(COL_CATEGORY,       item.getCategory() != null ? item.getCategory() : "Other");
+        return getWritableDatabase().insert(TABLE_ITEMS, null, values);
     }
 
-    /** Mark an item as resolved / active. */
-    public void updateItemStatus(int id, String status) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues v = new ContentValues();
-        v.put(COL_STATUS, status);
-        db.update(TABLE_ITEMS, v, COL_ID + " = ?", new String[]{String.valueOf(id)});
-    }
-
-    /** Permanently delete an item. */
-    public void deleteItem(int id) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete(TABLE_ITEMS, COL_ID + " = ?", new String[]{String.valueOf(id)});
-    }
-
-    // ── Read ──────────────────────────────────────────────────────
-
-    /**
-     * Search items by name/desc/location and/or filter by type.
-     * Pass empty strings for no filter.
-     */
-    public List<Item> searchAndFilterItems(String query, String typeFilter) {
+    public List<Item> getAllItems() {
         List<Item> items = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = getReadableDatabase()
+                .query(TABLE_ITEMS, null, null, null, null, null, COL_ID + " DESC");
+        if (cursor.moveToFirst()) {
+            do { items.add(cursorToItem(cursor)); } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return items;
+    }
 
-        StringBuilder sel = new StringBuilder();
+    public Item getItemById(int id) {
+        Cursor cursor = getReadableDatabase().query(
+                TABLE_ITEMS, null,
+                COL_ID + "=?", new String[]{String.valueOf(id)},
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            Item item = cursorToItem(cursor);
+            cursor.close();
+            return item;
+        }
+        cursor.close();
+        return null;
+    }
+
+    /** Combined search + type + category filter (any combination). */
+    public List<Item> searchAndFilterItems(String query, String typeFilter, String categoryFilter) {
+        List<Item> items = new ArrayList<>();
+        StringBuilder selection = new StringBuilder();
         List<String> args = new ArrayList<>();
 
-        if (query != null && !query.trim().isEmpty()) {
-            String q = "%" + query.trim() + "%";
-            sel.append("(")
-               .append(COL_NAME).append(" LIKE ? OR ")
-               .append(COL_DESC).append(" LIKE ? OR ")
-               .append(COL_LOCATION).append(" LIKE ?)");
-            args.add(q); args.add(q); args.add(q);
+        if (query != null && !query.isEmpty()) {
+            selection.append("(")
+                     .append(COL_NAME).append(" LIKE ? OR ")
+                     .append(COL_DESC).append(" LIKE ? OR ")
+                     .append(COL_LOCATION).append(" LIKE ?)");
+            String like = "%" + query + "%";
+            args.add(like); args.add(like); args.add(like);
         }
+
         if (typeFilter != null && !typeFilter.isEmpty()) {
-            if (sel.length() > 0) sel.append(" AND ");
-            sel.append(COL_TYPE).append(" = ?");
+            if (selection.length() > 0) selection.append(" AND ");
+            selection.append(COL_TYPE).append("=?");
             args.add(typeFilter);
         }
 
-        Cursor cursor = db.query(TABLE_ITEMS, null,
-                sel.length() > 0 ? sel.toString() : null,
+        if (categoryFilter != null && !categoryFilter.isEmpty()) {
+            if (selection.length() > 0) selection.append(" AND ");
+            selection.append(COL_CATEGORY).append("=?");
+            args.add(categoryFilter);
+        }
+
+        Cursor cursor = getReadableDatabase().query(
+                TABLE_ITEMS, null,
+                selection.length() > 0 ? selection.toString() : null,
                 args.isEmpty() ? null : args.toArray(new String[0]),
                 null, null, COL_ID + " DESC");
 
@@ -131,37 +151,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return items;
     }
 
-    /** Convenience: all items, newest first. */
-    public List<Item> getAllItems() {
-        return searchAndFilterItems("", "");
+    public void deleteItem(int id) {
+        getWritableDatabase().delete(TABLE_ITEMS, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    /** Single item by id. */
-    public Item getItemById(int id) {
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query(TABLE_ITEMS, null,
-                COL_ID + " = ?", new String[]{String.valueOf(id)},
-                null, null, null);
-        Item item = null;
-        if (cursor.moveToFirst()) item = cursorToItem(cursor);
-        cursor.close();
-        return item;
+    public void updateItemStatus(int id, String status) {
+        ContentValues values = new ContentValues();
+        values.put(COL_STATUS, status);
+        getWritableDatabase().update(TABLE_ITEMS, values, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
-    // ── Internal ─────────────────────────────────────────────────
+    // ── Helper ────────────────────────────────────────────────────
 
-    private Item cursorToItem(Cursor c) {
+    private Item cursorToItem(Cursor cursor) {
+        // Use getColumnIndex (not OrThrow) for category to be safe with old DB rows
+        int catIdx = cursor.getColumnIndex(COL_CATEGORY);
         return new Item(
-                c.getInt(c.getColumnIndexOrThrow(COL_ID)),
-                c.getString(c.getColumnIndexOrThrow(COL_NAME)),
-                c.getString(c.getColumnIndexOrThrow(COL_DESC)),
-                c.getString(c.getColumnIndexOrThrow(COL_LOCATION)),
-                c.getString(c.getColumnIndexOrThrow(COL_TYPE)),
-                c.getString(c.getColumnIndexOrThrow(COL_IMAGE)),
-                c.getString(c.getColumnIndexOrThrow(COL_POSTER_NAME)),
-                c.getString(c.getColumnIndexOrThrow(COL_POSTER_CONTACT)),
-                c.getString(c.getColumnIndexOrThrow(COL_STATUS)),
-                c.getLong(c.getColumnIndexOrThrow(COL_CREATED_AT))
+                cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_DESC)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_LOCATION)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_TYPE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_IMAGE_PATH)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_POSTER_NAME)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_POSTER_CONTACT)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS)),
+                cursor.getLong(cursor.getColumnIndexOrThrow(COL_CREATED_AT)),
+                catIdx >= 0 ? cursor.getString(catIdx) : "Other"
         );
     }
 }

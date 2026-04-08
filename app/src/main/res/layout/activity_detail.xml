@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorToolbarBg"
             app:title="Item Details"
             app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/ic_back_arrow"
@@ -167,6 +167,31 @@
                             android:textColor="@color/textSecondary" />
                     </LinearLayout>
 
+                    <!-- Category row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_tag"
+                            app:tint="@color/colorPrimary"
+                            android:contentDescription="Category" />
+
+                        <TextView
+                            android:id="@+id/tvDetailCategory"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/textSecondary" />
+                    </LinearLayout>
+
                     <!-- Timestamp row -->
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -281,6 +306,19 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="36dp">
+
+                <!-- Share via WhatsApp (filled, amber) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnShare"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📤   Share via WhatsApp"
+                    android:textSize="15sp"
+                    android:padding="14dp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="10dp"
+                    app:backgroundTint="@color/colorAccent"
+                    app:cornerRadius="14dp" />
 
                 <!-- Mark as Returned (green outline, hidden when resolved) -->
                 <com.google.android.material.button.MaterialButton

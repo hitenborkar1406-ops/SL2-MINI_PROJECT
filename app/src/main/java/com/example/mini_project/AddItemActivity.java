@@ -25,8 +25,13 @@ import java.io.InputStream;
 
 public class AddItemActivity extends AppCompatActivity {
 
+    // ── Categories available to the user ─────────────────────────
+    static final String[] CATEGORIES = {
+            "Electronics", "Keys", "Wallet / ID", "Books", "Clothing", "Accessories", "Other"
+    };
+
     private TextInputEditText etItemName, etDescription, etLocation;
-    private AutoCompleteTextView actvType;
+    private AutoCompleteTextView actvType, actvCategory;
     private ImageView ivImagePreview;
     private MaterialButton btnPickImage;
 
@@ -38,7 +43,7 @@ public class AddItemActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Must register launcher BEFORE setContentView (before STARTED state)
+        // Must register BEFORE setContentView (before STARTED state)
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
@@ -58,20 +63,25 @@ public class AddItemActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
 
         // Bind views
-        etItemName = findViewById(R.id.etItemName);
-        etDescription = findViewById(R.id.etDescription);
-        etLocation = findViewById(R.id.etLocation);
-        actvType = findViewById(R.id.actvType);
+        etItemName   = findViewById(R.id.etItemName);
+        etDescription= findViewById(R.id.etDescription);
+        etLocation   = findViewById(R.id.etLocation);
+        actvType     = findViewById(R.id.actvType);
+        actvCategory = findViewById(R.id.actvCategory);
         ivImagePreview = findViewById(R.id.ivImagePreview);
         btnPickImage = findViewById(R.id.btnPickImage);
         MaterialButton btnSave = findViewById(R.id.btnSave);
 
-        // Populate type dropdown
+        // Type dropdown
         String[] types = {"Lost", "Found"};
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_dropdown_item_1line, types);
-        actvType.setAdapter(typeAdapter);
-        actvType.setText(types[0], false); // default: Lost
+        actvType.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, types));
+        actvType.setText(types[0], false);
+
+        // Category dropdown
+        actvCategory.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, CATEGORIES));
+        actvCategory.setText(CATEGORIES[CATEGORIES.length - 1], false); // default: Other
 
         btnPickImage.setOnClickListener(v ->
                 imagePickerLauncher.launch(
@@ -85,10 +95,11 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     private void saveItem() {
-        String name = etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
-        String desc = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
-        String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
-        String type = actvType.getText() != null ? actvType.getText().toString().trim() : "Lost";
+        String name     = etItemName.getText()   != null ? etItemName.getText().toString().trim()    : "";
+        String desc     = etDescription.getText()!= null ? etDescription.getText().toString().trim() : "";
+        String location = etLocation.getText()   != null ? etLocation.getText().toString().trim()    : "";
+        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()      : "Lost";
+        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim()  : "Other";
 
         // Validate required field
         if (TextUtils.isEmpty(name)) {
@@ -109,7 +120,8 @@ public class AddItemActivity extends AppCompatActivity {
         String posterContact = prefs.getString(UserSetupActivity.KEY_CONTACT, "");
 
         Item item = new Item(0, name, desc, location, type, imagePath,
-                            posterName, posterContact, "active", System.currentTimeMillis());
+                             posterName, posterContact, "active",
+                             System.currentTimeMillis(), category);
         long id = dbHelper.insertItem(item);
 
         if (id > 0) {
@@ -122,10 +134,6 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Copy the image from the given content URI into the app's internal files directory.
-     * Returns the absolute path of the saved file, or null on failure.
-     */
     private String copyImageToInternal(Uri uri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
@@ -142,12 +150,10 @@ public class AddItemActivity extends AppCompatActivity {
             }
             fos.close();
             inputStream.close();
-
             return outFile.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
-
 }

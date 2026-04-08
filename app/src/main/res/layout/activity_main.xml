@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorToolbarBg"
             app:title="Lost &amp; Found"
             app:titleTextColor="@color/white"
             app:subtitleTextColor="#CCFFFFFF" />
@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
+            android:background="@color/colorSurface"
             android:paddingHorizontal="16dp"
             android:paddingTop="12dp"
             android:paddingBottom="8dp"
@@ -96,6 +96,24 @@
                     android:text="🟢  Found" />
 
             </com.google.android.material.chip.ChipGroup>
+
+            <!-- Category filter row (horizontal scroll) -->
+            <HorizontalScrollView
+                android:id="@+id/categoryScroll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="4dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="4dp"
+                    app:singleSelection="true"
+                    app:selectionRequired="true" />
+
+            </HorizontalScrollView>
 
         </LinearLayout>
 

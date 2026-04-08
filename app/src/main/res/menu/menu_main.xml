@@ -2,6 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Toggle dark / light mode -->
+    <item
+        android:id="@+id/action_dark_mode"
+        android:title="Dark Mode"
+        android:icon="@drawable/ic_dark_mode"
+        android:orderInCategory="50"
+        app:showAsAction="always" />
+
+    <!-- Edit profile -->
     <item
         android:id="@+id/action_profile"
         android:title="My Profile"

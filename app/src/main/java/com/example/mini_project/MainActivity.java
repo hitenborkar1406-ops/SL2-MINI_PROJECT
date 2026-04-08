@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -37,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_NOTIFICATION_PERMISSION = 100;
 
+    // All categories, mirrored from AddItemActivity
+    private static final String[] CATEGORY_LABELS = {
+            "All", "Electronics", "Keys", "Wallet / ID", "Books", "Clothing", "Accessories", "Other"
+    };
+
     private RecyclerView recyclerView;
     private View emptyState;
     private TextView tvItemCount;
@@ -45,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private ExtendedFloatingActionButton fab;
 
     private String currentQuery = "";
-    private String currentTypeFilter = ""; // "" = All
+    private String currentTypeFilter    = ""; // "" = All
+    private String currentCategoryFilter = ""; // "" = All categories
 
     // Refreshes subtitle when returning from ProfileActivity
     private final ActivityResultLauncher<Intent> profileLauncher =
@@ -124,6 +131,26 @@ public class MainActivity extends AppCompatActivity {
             else                           currentTypeFilter = "";
             loadItems();
         });
+
+        // ── Category chips (built dynamically) ──────────────────
+        ChipGroup chipGroupCategory = findViewById(R.id.chipGroupCategory);
+        for (String label : CATEGORY_LABELS) {
+            Chip chip = new Chip(this);
+            chip.setId(View.generateViewId());
+            chip.setText(label);
+            chip.setCheckable(true);
+            chip.setChecked(label.equals("All"));
+            chip.setTag(label);
+            chip.setTextSize(12f);
+            chipGroupCategory.addView(chip);
+        }
+        chipGroupCategory.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            Chip checked = group.findViewById(checkedIds.get(0));
+            String selected = (String) checked.getTag();
+            currentCategoryFilter = "All".equals(selected) ? "" : selected;
+            loadItems();
+        });
     }
 
     // ── Toolbar menu ──────────────────────────────────────────────
@@ -139,8 +166,21 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_profile) {
             profileLauncher.launch(new Intent(this, ProfileActivity.class));
             return true;
+        } else if (item.getItemId() == R.id.action_dark_mode) {
+            toggleDarkMode();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleDarkMode() {
+        SharedPreferences prefs = getSharedPreferences(MyApplication.PREFS_APP, MODE_PRIVATE);
+        boolean isDark = prefs.getBoolean(MyApplication.KEY_DARK_MODE, false);
+        boolean newMode = !isDark;
+        prefs.edit().putBoolean(MyApplication.KEY_DARK_MODE, newMode).apply();
+        AppCompatDelegate.setDefaultNightMode(newMode
+                ? AppCompatDelegate.MODE_NIGHT_YES
+                : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────
@@ -162,13 +202,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadItems() {
-        List<Item> items = dbHelper.searchAndFilterItems(currentQuery, currentTypeFilter);
+        List<Item> items = dbHelper.searchAndFilterItems(
+                currentQuery, currentTypeFilter, currentCategoryFilter);
         adapter.updateItems(items);
 
         // Item count label
         int count = items.size();
+        String filterLabel = !currentTypeFilter.isEmpty() ? currentTypeFilter
+                : !currentCategoryFilter.isEmpty() ? currentCategoryFilter : "";
         tvItemCount.setText(count + " item" + (count == 1 ? "" : "s")
-                + (currentTypeFilter.isEmpty() ? "" : " · " + currentTypeFilter));
+                + (filterLabel.isEmpty() ? "" : " · " + filterLabel));
 
         // Empty state
         boolean empty = items.isEmpty();

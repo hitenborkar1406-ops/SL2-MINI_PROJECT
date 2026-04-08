@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorToolbarBg"
             app:title="My Profile"
             app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/ic_back_arrow"

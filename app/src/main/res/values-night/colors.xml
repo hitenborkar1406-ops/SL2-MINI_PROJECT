@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Primary brand ───────────────────────────────────────── -->
+    <!-- Lighter blue so it reads well on dark surfaces             -->
+    <color name="colorPrimary">#90CAF9</color>
+    <color name="colorPrimaryDark">#1565C0</color>
+    <color name="colorPrimaryLight">#BBDEFB</color>
+    <!-- Toolbar background: dark navy so toolbar looks properly dark -->
+    <color name="colorToolbarBg">#1E1E2E</color>
+
+    <!-- Accent -->
+    <color name="colorAccent">#FFB74D</color>
+
+    <!-- Semantic type colors — lighter for dark backgrounds -->
+    <color name="colorLost">#EF9A9A</color>
+    <color name="colorFound">#A5D6A7</color>
+
+    <!-- Backgrounds / surfaces (Material dark baseline) -->
+    <color name="colorBackground">#1C1B1F</color>
+    <color name="colorSurface">#2B2930</color>
+
+    <!-- Text -->
+    <color name="textPrimary">#E8EAED</color>
+    <color name="textSecondary">#9AA0A6</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Card tinted backgrounds — dark-mode variants -->
+    <color name="cardBgLost">#2D1515</color>
+    <color name="cardBgFound">#152D15</color>
+
+    <!-- Hint text + image preview background (dark mode) -->
+    <color name="textHint">#757575</color>
+    <color name="colorBackgroundSecondary">#2C2C3A</color>
+</resources>

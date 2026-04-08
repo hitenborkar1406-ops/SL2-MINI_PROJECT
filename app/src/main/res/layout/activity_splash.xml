@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_splash">
+
+    <!-- Glowing semi-transparent circle containing the logo -->
+    <FrameLayout
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@drawable/bg_splash_circle"
+        android:layout_marginBottom="40dp">
+
+        <ImageView
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_search"
+            app:tint="@color/white"
+            android:contentDescription="App logo" />
+
+    </FrameLayout>
+
+    <!-- App name -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lost &amp; Found"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="-0.02"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Tagline -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Campus Companion"
+        android:textSize="16sp"
+        android:textColor="#CCFFFFFF" />
+
+    <!-- Spacer -->
+    <View
+        android:layout_width="1dp"
+        android:layout_height="80dp" />
+
+    <!-- Version tag -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="v1.0  ·  Campus Edition"
+        android:textSize="12sp"
+        android:textColor="#80FFFFFF" />
+
+</LinearLayout>

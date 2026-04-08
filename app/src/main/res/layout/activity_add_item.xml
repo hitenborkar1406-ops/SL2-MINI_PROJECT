@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorToolbarBg"
             app:title="Post an Item"
             app:titleTextColor="@color/white"
             app:navigationIcon="@drawable/ic_back_arrow"
@@ -134,6 +134,23 @@
 
                         <AutoCompleteTextView
                             android:id="@+id/actvType"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:focusable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Category dropdown -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilCategory"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Category"
+                        android:layout_marginTop="14dp">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvCategory"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"

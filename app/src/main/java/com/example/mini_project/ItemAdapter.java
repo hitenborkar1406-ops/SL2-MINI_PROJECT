@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.card.MaterialCardView;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,22 +46,29 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> {
         // Name
         holder.tvName.setText(item.getName());
 
-        // Location
+        // Location + category on card
         String loc = item.getLocation();
-        holder.tvLocation.setText((loc != null && !loc.isEmpty()) ? loc : "Location not specified");
+        String cat = item.getCategory();
+        String locCat = (!loc.isEmpty() ? loc : "Location not specified")
+                + (!cat.isEmpty() && !"Other".equals(cat) ? "  ·  " + cat : "");
+        holder.tvLocation.setText(locCat);
 
         // Timestamp — relative time
         holder.tvTimestamp.setText(formatRelativeTime(item.getCreatedAt()));
 
-        // Type badge + left strip color
+        // Type badge + left strip color + card background tint
         String type = item.getType();
         holder.tvType.setText(type);
         if ("Lost".equals(type)) {
             holder.tvType.setBackgroundResource(R.drawable.badge_lost);
             holder.viewStrip.setBackgroundColor(ContextCompat.getColor(context, R.color.colorLost));
+            ((MaterialCardView) holder.itemView).setCardBackgroundColor(
+                    ContextCompat.getColor(context, R.color.cardBgLost));
         } else {
             holder.tvType.setBackgroundResource(R.drawable.badge_found);
             holder.viewStrip.setBackgroundColor(ContextCompat.getColor(context, R.color.colorFound));
+            ((MaterialCardView) holder.itemView).setCardBackgroundColor(
+                    ContextCompat.getColor(context, R.color.cardBgFound));
         }
         holder.tvType.setTextColor(ContextCompat.getColor(context, R.color.white));
 

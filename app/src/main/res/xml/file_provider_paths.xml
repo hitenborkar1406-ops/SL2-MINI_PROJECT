@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Paths FileProvider is allowed to expose -->
+<paths>
+    <!-- Internal storage (getFilesDir) — where we save item images -->
+    <files-path name="internal" path="." />
+</paths>
