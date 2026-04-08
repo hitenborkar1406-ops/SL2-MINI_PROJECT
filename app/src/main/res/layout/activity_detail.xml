@@ -192,7 +192,35 @@
                             android:textColor="@color/textSecondary" />
                     </LinearLayout>
 
-                    <!-- Timestamp row -->
+                    <!-- Event date row (when it was actually lost/found) -->
+                    <LinearLayout
+                        android:id="@+id/rowEventDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="@color/colorPrimary"
+                            android:contentDescription="Date lost or found" />
+
+                        <TextView
+                            android:id="@+id/tvDetailEventDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/textSecondary" />
+                    </LinearLayout>
+
+                    <!-- Posted timestamp row -->
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

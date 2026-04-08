@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME    = "campus_lost_found.db";
-    private static final int    DATABASE_VERSION = 3;   // v3 adds 'category'
+    private static final int    DATABASE_VERSION = 4;   // v4 adds 'event_date'
 
     private static final String TABLE_ITEMS = "items";
 
@@ -28,6 +28,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL_STATUS         = "status";
     private static final String COL_CREATED_AT     = "created_at";
     private static final String COL_CATEGORY       = "category";
+    private static final String COL_EVENT_DATE     = "event_date";
 
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_ITEMS + " (" +
@@ -41,7 +42,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COL_POSTER_CONTACT + " TEXT, " +
             COL_STATUS         + " TEXT DEFAULT 'active', " +
             COL_CREATED_AT     + " INTEGER DEFAULT 0, " +
-            COL_CATEGORY       + " TEXT DEFAULT 'Other'" +
+            COL_CATEGORY       + " TEXT DEFAULT 'Other', " +
+            COL_EVENT_DATE     + " INTEGER DEFAULT 0" +
             ")";
 
     public DatabaseHelper(Context context) {
@@ -67,6 +69,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_CATEGORY + " TEXT DEFAULT 'Other'");
         }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE " + TABLE_ITEMS + " ADD COLUMN " + COL_EVENT_DATE + " INTEGER DEFAULT 0");
+        }
     }
 
     // ── CRUD ──────────────────────────────────────────────────────
@@ -83,6 +88,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_STATUS,         item.getStatus() != null ? item.getStatus() : "active");
         values.put(COL_CREATED_AT,     item.getCreatedAt());
         values.put(COL_CATEGORY,       item.getCategory() != null ? item.getCategory() : "Other");
+        values.put(COL_EVENT_DATE,     item.getEventDate());
         return getWritableDatabase().insert(TABLE_ITEMS, null, values);
     }
 
@@ -163,13 +169,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /** Full update — called when a user edits an existing item. */
     public boolean updateItem(int id, String name, String desc, String location,
-                              String type, String category, String imagePath) {
+                              String type, String category, String imagePath, long eventDate) {
         ContentValues values = new ContentValues();
         values.put(COL_NAME,       name);
         values.put(COL_DESC,       desc);
         values.put(COL_LOCATION,   location);
         values.put(COL_TYPE,       type);
         values.put(COL_CATEGORY,   category != null ? category : "Other");
+        values.put(COL_EVENT_DATE, eventDate);
         if (imagePath != null) {
             // Only overwrite image if the user actually picked a new one
             values.put(COL_IMAGE_PATH, imagePath);
@@ -183,8 +190,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // ── Helper ────────────────────────────────────────────────────
 
     private Item cursorToItem(Cursor cursor) {
-        // Use getColumnIndex (not OrThrow) for category to be safe with old DB rows
+        // Use getColumnIndex (not OrThrow) for category and event_date to be safe with old DB rows
         int catIdx = cursor.getColumnIndex(COL_CATEGORY);
+        int dateIdx = cursor.getColumnIndex(COL_EVENT_DATE);
         return new Item(
                 cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
                 cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)),
@@ -196,7 +204,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(COL_POSTER_CONTACT)),
                 cursor.getString(cursor.getColumnIndexOrThrow(COL_STATUS)),
                 cursor.getLong(cursor.getColumnIndexOrThrow(COL_CREATED_AT)),
-                catIdx >= 0 ? cursor.getString(catIdx) : "Other"
+                catIdx >= 0 ? cursor.getString(catIdx) : "Other",
+                dateIdx >= 0 ? cursor.getLong(dateIdx) : 0
         );
     }
 }

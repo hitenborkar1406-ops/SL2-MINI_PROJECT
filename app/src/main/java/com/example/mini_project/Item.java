@@ -6,9 +6,11 @@ public class Item {
     private String name, desc, location, type, imagePath;
     private String posterName, posterContact, status, category;
     private long createdAt;
+    private long eventDate; // Timestamp for when it was actually lost or found
 
     public Item(int id, String name, String desc, String location, String type, String imagePath,
-                String posterName, String posterContact, String status, long createdAt, String category) {
+                String posterName, String posterContact, String status, long createdAt, String category,
+                long eventDate) {
         this.id            = id;
         this.name          = name;
         this.desc          = desc;
@@ -20,6 +22,7 @@ public class Item {
         this.status        = status;
         this.createdAt     = createdAt;
         this.category      = category;
+        this.eventDate     = eventDate;
     }
 
     // ── Getters ──────────────────────────────────────────────────
@@ -34,10 +37,12 @@ public class Item {
     public String getStatus()       { return status; }
     public long   getCreatedAt()    { return createdAt; }
     public String getCategory()     { return category; }
+    public long   getEventDate()    { return eventDate; }
 
     // ── Setters ──────────────────────────────────────────────────
     public void setPosterName(String posterName)       { this.posterName = posterName; }
     public void setPosterContact(String posterContact) { this.posterContact = posterContact; }
     public void setStatus(String status)               { this.status = status; }
     public void setCategory(String category)           { this.category = category; }
+    public void setEventDate(long eventDate)           { this.eventDate = eventDate; }
 }

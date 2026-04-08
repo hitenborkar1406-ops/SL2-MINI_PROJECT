@@ -124,7 +124,29 @@
                             android:imeOptions="actionDone" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Date Lost / Found picker -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilEventDate"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Date Lost / Found"
+                        android:layout_marginTop="14dp"
+                        app:endIconDrawable="@drawable/ic_clock"
+                        app:endIconMode="custom">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etEventDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:cursorVisible="false"
+                            android:focusable="false"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <!-- Type dropdown -->
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilType"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"

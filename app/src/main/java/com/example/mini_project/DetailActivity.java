@@ -34,6 +34,8 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView ivDetailImage;
     private TextView tvDetailName, tvDetailType, tvDetailDesc;
     private TextView tvDetailLocation, tvDetailTimestamp, tvDetailCategory;
+    private TextView tvDetailEventDate;
+    private android.view.View rowEventDate;
     private TextView tvDetailPosterName, tvDetailContact;
     private TextView tvResolvedBanner;
     private MaterialButton btnShare, btnMarkReturned, btnDelete, btnEdit;
@@ -74,6 +76,8 @@ public class DetailActivity extends AppCompatActivity {
         tvDetailLocation   = findViewById(R.id.tvDetailLocation);
         tvDetailCategory   = findViewById(R.id.tvDetailCategory);
         tvDetailTimestamp  = findViewById(R.id.tvDetailTimestamp);
+        tvDetailEventDate  = findViewById(R.id.tvDetailEventDate);
+        rowEventDate       = findViewById(R.id.rowEventDate);
         tvDetailPosterName = findViewById(R.id.tvDetailPosterName);
         tvDetailContact    = findViewById(R.id.tvDetailContact);
         tvResolvedBanner   = findViewById(R.id.tvResolvedBanner);
@@ -123,6 +127,19 @@ public class DetailActivity extends AppCompatActivity {
         // Category
         String cat = item.getCategory();
         tvDetailCategory.setText(!TextUtils.isEmpty(cat) ? cat : "Other");
+
+        // Event date (when item was actually lost / found) — hidden if not set
+        long eventDate = item.getEventDate();
+        if (eventDate > 0) {
+            String label = "Lost".equals(item.getType()) ? "Lost on: " : "Found on: ";
+            tvDetailEventDate.setText(label +
+                    new SimpleDateFormat("EEEE, MMM d, yyyy", Locale.getDefault())
+                            .format(new Date(eventDate)));
+            rowEventDate.setVisibility(android.view.View.VISIBLE);
+        } else {
+            rowEventDate.setVisibility(android.view.View.GONE);
+        }
+
         tvDetailTimestamp.setText(item.getCreatedAt() > 0
                 ? "Posted " + new SimpleDateFormat("MMM d, yyyy · h:mm a", Locale.getDefault())
                                   .format(new Date(item.getCreatedAt()))

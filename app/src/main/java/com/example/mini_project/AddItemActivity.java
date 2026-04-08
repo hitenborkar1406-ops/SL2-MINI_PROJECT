@@ -17,12 +17,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class AddItemActivity extends AppCompatActivity {
 
@@ -35,15 +39,17 @@ public class AddItemActivity extends AppCompatActivity {
             "Electronics", "Keys", "Wallet / ID", "Books", "Clothing", "Accessories", "Other"
     };
 
-    private TextInputEditText etItemName, etDescription, etLocation;
+    // ── Views ────────────────────────────────────────────────────
+    private TextInputEditText etItemName, etDescription, etLocation, etEventDate;
     private AutoCompleteTextView actvType, actvCategory;
     private ImageView ivImagePreview;
     private MaterialButton btnPickImage;
 
-    // Edit-mode state
-    private int     editItemId    = -1;   // -1 means "add" mode
-    private String  existingImagePath = null; // kept when user doesn't pick a new image
-    private Uri     selectedImageUri  = null;
+    // ── State ────────────────────────────────────────────────────
+    private int    editItemId        = -1;   // -1 = add mode
+    private String existingImagePath = null; // kept when user doesn't pick a new image
+    private Uri    selectedImageUri  = null;
+    private long   selectedEventDate = 0L;   // 0 = not set
 
     private DatabaseHelper dbHelper;
     private ActivityResultLauncher<PickVisualMediaRequest> imagePickerLauncher;
@@ -58,7 +64,7 @@ public class AddItemActivity extends AppCompatActivity {
                 uri -> {
                     if (uri != null) {
                         selectedImageUri  = uri;
-                        existingImagePath = null;          // replaced by new pick
+                        existingImagePath = null;      // replaced by new pick
                         ivImagePreview.setImageURI(uri);
                         btnPickImage.setText(R.string.btn_change_image);
                     }
@@ -67,7 +73,7 @@ public class AddItemActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_item);
 
-        // Detect edit mode from intent
+        // Detect edit mode
         editItemId = getIntent().getIntExtra(EXTRA_EDIT_ID, -1);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -80,11 +86,15 @@ public class AddItemActivity extends AppCompatActivity {
         etItemName    = findViewById(R.id.etItemName);
         etDescription = findViewById(R.id.etDescription);
         etLocation    = findViewById(R.id.etLocation);
+        etEventDate   = findViewById(R.id.etEventDate);
         actvType      = findViewById(R.id.actvType);
         actvCategory  = findViewById(R.id.actvCategory);
-        ivImagePreview= findViewById(R.id.ivImagePreview);
-        btnPickImage  = findViewById(R.id.btnPickImage);
+        ivImagePreview = findViewById(R.id.ivImagePreview);
+        btnPickImage   = findViewById(R.id.btnPickImage);
         MaterialButton btnSave = findViewById(R.id.btnSave);
+
+        // ── Date picker ──────────────────────────────────────────
+        etEventDate.setOnClickListener(v -> showDatePicker());
 
         // ── Dropdowns ────────────────────────────────────────────
         String[] types = {"Lost", "Found"};
@@ -94,12 +104,11 @@ public class AddItemActivity extends AppCompatActivity {
         actvCategory.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, CATEGORIES));
 
-        // ── Pre-fill fields if editing ────────────────────────────
+        // ── Pre-fill or set defaults ──────────────────────────────
         if (editItemId >= 0) {
             prefillForEdit(editItemId);
             btnSave.setText("Save Changes");
         } else {
-            // Fresh add — set sensible defaults
             actvType.setText(types[0], false);
             actvCategory.setText(CATEGORIES[CATEGORIES.length - 1], false);
         }
@@ -118,7 +127,7 @@ public class AddItemActivity extends AppCompatActivity {
         });
     }
 
-    // ── Pre-fill helpers ──────────────────────────────────────────
+    // ── Pre-fill existing data (Edit mode) ────────────────────────
 
     private void prefillForEdit(int id) {
         Item item = dbHelper.getItemById(id);
@@ -129,6 +138,13 @@ public class AddItemActivity extends AppCompatActivity {
         etLocation.setText(item.getLocation());
         actvType.setText(item.getType(), false);
         actvCategory.setText(item.getCategory() != null ? item.getCategory() : "Other", false);
+
+        // Restore previously saved event date
+        selectedEventDate = item.getEventDate();
+        if (selectedEventDate > 0) {
+            etEventDate.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                    .format(new Date(selectedEventDate)));
+        }
 
         // Load existing image preview
         existingImagePath = item.getImagePath();
@@ -147,8 +163,8 @@ public class AddItemActivity extends AppCompatActivity {
         String name     = getText(etItemName);
         String desc     = getText(etDescription);
         String location = getText(etLocation);
-        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()     : "Lost";
-        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim() : "Other";
+        String type     = getDropdownText(actvType,     "Lost");
+        String category = getDropdownText(actvCategory, "Other");
 
         if (TextUtils.isEmpty(name)) {
             etItemName.setError(getString(R.string.error_item_name_required));
@@ -163,8 +179,8 @@ public class AddItemActivity extends AppCompatActivity {
         String posterContact = prefs.getString(UserSetupActivity.KEY_CONTACT, "");
 
         Item item = new Item(0, name, desc, location, type, imagePath,
-                             posterName, posterContact, "active",
-                             System.currentTimeMillis(), category);
+                posterName, posterContact, "active",
+                System.currentTimeMillis(), category, selectedEventDate);
         long insertedId = dbHelper.insertItem(item);
 
         if (insertedId > 0) {
@@ -183,8 +199,8 @@ public class AddItemActivity extends AppCompatActivity {
         String name     = getText(etItemName);
         String desc     = getText(etDescription);
         String location = getText(etLocation);
-        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()     : "Lost";
-        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim() : "Other";
+        String type     = getDropdownText(actvType,     "Lost");
+        String category = getDropdownText(actvCategory, "Other");
 
         if (TextUtils.isEmpty(name)) {
             etItemName.setError(getString(R.string.error_item_name_required));
@@ -192,15 +208,11 @@ public class AddItemActivity extends AppCompatActivity {
             return;
         }
 
-        // Resolve image: if user picked a new one → copy it; otherwise keep the existing path
-        String newImagePath = null;
-        if (selectedImageUri != null) {
-            newImagePath = copyImageToInternal(selectedImageUri);
-        }
-        // Pass null for imagePath to updateItem() when no new image was chosen
-        // (DatabaseHelper only overwrites it when non-null)
+        // Only copy a new image if the user explicitly picked one
+        String newImagePath = (selectedImageUri != null) ? copyImageToInternal(selectedImageUri) : null;
 
-        boolean ok = dbHelper.updateItem(editItemId, name, desc, location, type, category, newImagePath);
+        boolean ok = dbHelper.updateItem(
+                editItemId, name, desc, location, type, category, newImagePath, selectedEventDate);
 
         if (ok) {
             Toast.makeText(this, "Item updated ✓", Toast.LENGTH_SHORT).show();
@@ -211,10 +223,33 @@ public class AddItemActivity extends AppCompatActivity {
         }
     }
 
-    // ── Internal helpers ──────────────────────────────────────────
+    // ── Date picker ───────────────────────────────────────────────
+
+    private void showDatePicker() {
+        MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select Date")
+                .setSelection(selectedEventDate > 0
+                        ? selectedEventDate
+                        : MaterialDatePicker.todayInUtcMilliseconds())
+                .build();
+
+        datePicker.addOnPositiveButtonClickListener(selection -> {
+            selectedEventDate = selection;
+            etEventDate.setText(new SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                    .format(new Date(selectedEventDate)));
+        });
+
+        datePicker.show(getSupportFragmentManager(), "DATE_PICKER");
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────
 
     private String getText(TextInputEditText et) {
         return et.getText() != null ? et.getText().toString().trim() : "";
+    }
+
+    private String getDropdownText(AutoCompleteTextView actv, String fallback) {
+        return actv.getText() != null ? actv.getText().toString().trim() : fallback;
     }
 
     private String copyImageToInternal(Uri uri) {
