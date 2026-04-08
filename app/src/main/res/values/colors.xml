@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand / Primary -->
+    <color name="colorPrimary">#1565C0</color>
+    <color name="colorPrimaryDark">#0D1B6E</color>
+    <color name="colorPrimaryLight">#5E92F3</color>
+    <color name="colorAccent">#FF6D00</color>
+
+    <!-- Semantic -->
+    <color name="colorLost">#E53935</color>
+    <color name="colorFound">#43A047</color>
+    <color name="colorLostLight">#FFEBEE</color>
+    <color name="colorFoundLight">#E8F5E9</color>
+
+    <!-- Backgrounds -->
+    <color name="colorBackground">#F0F3FF</color>
+    <color name="colorBackgroundSecondary">#E3E8F8</color>
+    <color name="colorSurface">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="textPrimary">#1A1A2E</color>
+    <color name="textSecondary">#455A75</color>
+    <color name="textHint">#90A4AE</color>
+
+    <!-- Misc -->
+    <color name="colorDivider">#E8EAF6</color>
+    <color name="colorRipple">#1A1565C0</color>
+    <color name="colorCardStroke">#E8EAF6</color>
+</resources>

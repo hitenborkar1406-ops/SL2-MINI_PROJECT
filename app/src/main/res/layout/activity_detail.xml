@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorBackground">
+
+    <!-- ── Toolbar ──────────────────────────────────────────── -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:title="Item Details"
+            app:titleTextColor="@color/white"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- ── Scrollable content ─────────────────────────────── -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Hero image with gradient + name/type overlay -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp">
+
+                <ImageView
+                    android:id="@+id/ivDetailImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Item photo" />
+
+                <!-- Dark gradient for readability -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/gradient_overlay" />
+
+                <!-- RESOLVED banner at top -->
+                <TextView
+                    android:id="@+id/tvResolvedBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:background="#CC1B5E20"
+                    android:text="✓  RETURNED"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:letterSpacing="0.1"
+                    android:visibility="gone" />
+
+                <!-- Item type chip + name at bottom of image -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvDetailType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:id="@+id/tvDetailName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+            </FrameLayout>
+
+            <!-- ── Info card ─────────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ITEM DETAILS"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:letterSpacing="0.1"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Description -->
+                    <TextView
+                        android:id="@+id/tvDetailDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="@color/textPrimary"
+                        android:lineSpacingExtra="4dp"
+                        android:layout_marginBottom="14dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#11000000"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Location row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_location"
+                            app:tint="@color/colorPrimary"
+                            android:contentDescription="Location" />
+
+                        <TextView
+                            android:id="@+id/tvDetailLocation"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/textSecondary" />
+                    </LinearLayout>
+
+                    <!-- Timestamp row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_clock"
+                            app:tint="@color/colorPrimary"
+                            android:contentDescription="Posted time" />
+
+                        <TextView
+                            android:id="@+id/tvDetailTimestamp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/textSecondary" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Posted by card ─────────────────────────── -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="POSTED BY"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"
+                        android:letterSpacing="0.1"
+                        android:layout_marginBottom="14dp" />
+
+                    <!-- Poster name -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_person"
+                            app:tint="@color/colorPrimary"
+                            android:contentDescription="Poster name" />
+
+                        <TextView
+                            android:id="@+id/tvDetailPosterName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+
+                    <!-- Contact -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_contact"
+                            app:tint="@color/colorAccent"
+                            android:contentDescription="Contact info" />
+
+                        <TextView
+                            android:id="@+id/tvDetailContact"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:textSize="14sp"
+                            android:textColor="@color/colorAccent" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ── Action buttons ─────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="36dp">
+
+                <!-- Mark as Returned (green outline, hidden when resolved) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMarkReturned"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="✓   Mark as Returned"
+                    android:textSize="15sp"
+                    android:padding="14dp"
+                    android:layout_marginBottom="10dp"
+                    app:strokeColor="@color/colorFound"
+                    app:strokeWidth="2dp"
+                    android:textColor="@color/colorFound"
+                    app:cornerRadius="14dp" />
+
+                <!-- Delete (red outline) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🗑   Delete Item"
+                    android:textSize="15sp"
+                    android:padding="14dp"
+                    app:strokeColor="@color/colorLost"
+                    app:strokeWidth="2dp"
+                    android:textColor="@color/colorLost"
+                    app:cornerRadius="14dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

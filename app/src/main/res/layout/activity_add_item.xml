@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorBackground">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:title="Post an Item"
+            app:titleTextColor="@color/white"
+            app:navigationIcon="@drawable/ic_back_arrow"
+            app:navigationIconTint="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ① Item Details Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="18dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="22dp">
+
+                    <!-- Section header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="20dp">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="22dp"
+                            android:background="@color/colorPrimary"
+                            android:layout_marginEnd="10dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Item Details"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+                    </LinearLayout>
+
+                    <!-- Item Name -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilItemName"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Item Name *"
+                        android:layout_marginBottom="14dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etItemName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapSentences"
+                            android:imeOptions="actionNext" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Description -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilDescription"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Description (optional)"
+                        android:layout_marginBottom="14dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:minLines="2"
+                            android:gravity="top|start" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Location -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLocation"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Location (e.g. Library, Block A)"
+                        android:layout_marginBottom="14dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etLocation"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapWords"
+                            android:imeOptions="actionDone" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Type dropdown -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilType"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Type">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvType"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:focusable="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ② Photo Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                app:cardElevation="3dp"
+                app:cardCornerRadius="18dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="22dp">
+
+                    <!-- Section header row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="22dp"
+                            android:background="@color/colorPrimary"
+                            android:layout_marginEnd="10dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Photo"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" — optional"
+                            android:textSize="13sp"
+                            android:textColor="@color/textHint" />
+                    </LinearLayout>
+
+                    <!-- Image preview area -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginBottom="12dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/colorBackgroundSecondary"
+                        app:strokeWidth="2dp">
+
+                        <ImageView
+                            android:id="@+id/ivImagePreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_image_placeholder"
+                            android:background="@color/colorBackgroundSecondary"
+                            android:contentDescription="Image preview" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Pick image button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPickImage"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Pick Image from Gallery"
+                        android:padding="12dp"
+                        app:strokeColor="@color/colorPrimary"
+                        app:cornerRadius="10dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ③ Post button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Post Item"
+                android:textSize="16sp"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp"
+                app:backgroundTint="@color/colorPrimary"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_add"
+                app:iconTint="@color/white"
+                app:iconGravity="textStart" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
