@@ -161,6 +161,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         getWritableDatabase().update(TABLE_ITEMS, values, COL_ID + "=?", new String[]{String.valueOf(id)});
     }
 
+    /** Full update — called when a user edits an existing item. */
+    public boolean updateItem(int id, String name, String desc, String location,
+                              String type, String category, String imagePath) {
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME,       name);
+        values.put(COL_DESC,       desc);
+        values.put(COL_LOCATION,   location);
+        values.put(COL_TYPE,       type);
+        values.put(COL_CATEGORY,   category != null ? category : "Other");
+        if (imagePath != null) {
+            // Only overwrite image if the user actually picked a new one
+            values.put(COL_IMAGE_PATH, imagePath);
+        }
+        int rows = getWritableDatabase()
+                .update(TABLE_ITEMS, values, COL_ID + "=?", new String[]{String.valueOf(id)});
+        return rows > 0;
+    }
+
+
     // ── Helper ────────────────────────────────────────────────────
 
     private Item cursorToItem(Cursor cursor) {

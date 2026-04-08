@@ -36,11 +36,25 @@ public class DetailActivity extends AppCompatActivity {
     private TextView tvDetailLocation, tvDetailTimestamp, tvDetailCategory;
     private TextView tvDetailPosterName, tvDetailContact;
     private TextView tvResolvedBanner;
-    private MaterialButton btnShare, btnMarkReturned, btnDelete;
+    private MaterialButton btnShare, btnMarkReturned, btnDelete, btnEdit;
+
+    // Launcher so DetailActivity can refresh after returning from edit
+    private androidx.activity.result.ActivityResultLauncher<android.content.Intent> editLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Register edit launcher BEFORE setContentView (before STARTED state)
+        editLauncher = registerForActivityResult(
+                new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        loadItem();   // refresh all fields after edit
+                    }
+                }
+        );
+
         setContentView(R.layout.activity_detail);
 
         // Back navigation
@@ -63,12 +77,18 @@ public class DetailActivity extends AppCompatActivity {
         tvDetailPosterName = findViewById(R.id.tvDetailPosterName);
         tvDetailContact    = findViewById(R.id.tvDetailContact);
         tvResolvedBanner   = findViewById(R.id.tvResolvedBanner);
-        btnShare           = findViewById(R.id.btnShare);
-        btnMarkReturned    = findViewById(R.id.btnMarkReturned);
-        btnDelete          = findViewById(R.id.btnDelete);
+        btnShare        = findViewById(R.id.btnShare);
+        btnMarkReturned = findViewById(R.id.btnMarkReturned);
+        btnDelete       = findViewById(R.id.btnDelete);
+        btnEdit         = findViewById(R.id.btnEdit);
 
         loadItem();
 
+        btnEdit.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddItemActivity.class);
+            intent.putExtra(AddItemActivity.EXTRA_EDIT_ID, itemId);
+            editLauncher.launch(intent);
+        });
         btnShare.setOnClickListener(v -> shareItem());
         btnMarkReturned.setOnClickListener(v -> markAsReturned());
         btnDelete.setOnClickListener(v -> showDeleteConfirmation());

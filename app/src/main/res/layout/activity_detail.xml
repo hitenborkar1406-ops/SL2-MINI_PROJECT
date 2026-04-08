@@ -320,6 +320,22 @@
                     app:backgroundTint="@color/colorAccent"
                     app:cornerRadius="14dp" />
 
+                <!-- Edit Item (blue outline) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="✏️   Edit Item"
+                    android:textSize="15sp"
+                    android:padding="14dp"
+                    android:layout_marginBottom="10dp"
+                    app:strokeColor="@color/colorPrimary"
+                    app:strokeWidth="2dp"
+                    android:textColor="@color/colorPrimary"
+                    app:cornerRadius="14dp" />
+
+
                 <!-- Mark as Returned (green outline, hidden when resolved) -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMarkReturned"

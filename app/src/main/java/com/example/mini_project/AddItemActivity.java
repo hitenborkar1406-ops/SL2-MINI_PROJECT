@@ -1,6 +1,7 @@
 package com.example.mini_project;
 
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,7 +26,11 @@ import java.io.InputStream;
 
 public class AddItemActivity extends AppCompatActivity {
 
-    // ── Categories available to the user ─────────────────────────
+    // ── Intent extras ────────────────────────────────────────────
+    /** Pass this extra with an item's integer ID to enter Edit mode. */
+    public static final String EXTRA_EDIT_ID = "edit_item_id";
+
+    // ── Categories ───────────────────────────────────────────────
     static final String[] CATEGORIES = {
             "Electronics", "Keys", "Wallet / ID", "Books", "Clothing", "Accessories", "Other"
     };
@@ -35,7 +40,11 @@ public class AddItemActivity extends AppCompatActivity {
     private ImageView ivImagePreview;
     private MaterialButton btnPickImage;
 
-    private Uri selectedImageUri = null;
+    // Edit-mode state
+    private int     editItemId    = -1;   // -1 means "add" mode
+    private String  existingImagePath = null; // kept when user doesn't pick a new image
+    private Uri     selectedImageUri  = null;
+
     private DatabaseHelper dbHelper;
     private ActivityResultLauncher<PickVisualMediaRequest> imagePickerLauncher;
 
@@ -48,7 +57,8 @@ public class AddItemActivity extends AppCompatActivity {
                 new ActivityResultContracts.PickVisualMedia(),
                 uri -> {
                     if (uri != null) {
-                        selectedImageUri = uri;
+                        selectedImageUri  = uri;
+                        existingImagePath = null;          // replaced by new pick
                         ivImagePreview.setImageURI(uri);
                         btnPickImage.setText(R.string.btn_change_image);
                     }
@@ -57,32 +67,44 @@ public class AddItemActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_item);
 
+        // Detect edit mode from intent
+        editItemId = getIntent().getIntExtra(EXTRA_EDIT_ID, -1);
+
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(editItemId >= 0 ? "Edit Item" : getString(R.string.title_add_item));
         toolbar.setNavigationOnClickListener(v -> finish());
 
         dbHelper = new DatabaseHelper(this);
 
-        // Bind views
-        etItemName   = findViewById(R.id.etItemName);
-        etDescription= findViewById(R.id.etDescription);
-        etLocation   = findViewById(R.id.etLocation);
-        actvType     = findViewById(R.id.actvType);
-        actvCategory = findViewById(R.id.actvCategory);
-        ivImagePreview = findViewById(R.id.ivImagePreview);
-        btnPickImage = findViewById(R.id.btnPickImage);
+        // ── Bind views ───────────────────────────────────────────
+        etItemName    = findViewById(R.id.etItemName);
+        etDescription = findViewById(R.id.etDescription);
+        etLocation    = findViewById(R.id.etLocation);
+        actvType      = findViewById(R.id.actvType);
+        actvCategory  = findViewById(R.id.actvCategory);
+        ivImagePreview= findViewById(R.id.ivImagePreview);
+        btnPickImage  = findViewById(R.id.btnPickImage);
         MaterialButton btnSave = findViewById(R.id.btnSave);
 
-        // Type dropdown
+        // ── Dropdowns ────────────────────────────────────────────
         String[] types = {"Lost", "Found"};
         actvType.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, types));
-        actvType.setText(types[0], false);
 
-        // Category dropdown
         actvCategory.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_dropdown_item_1line, CATEGORIES));
-        actvCategory.setText(CATEGORIES[CATEGORIES.length - 1], false); // default: Other
 
+        // ── Pre-fill fields if editing ────────────────────────────
+        if (editItemId >= 0) {
+            prefillForEdit(editItemId);
+            btnSave.setText("Save Changes");
+        } else {
+            // Fresh add — set sensible defaults
+            actvType.setText(types[0], false);
+            actvCategory.setText(CATEGORIES[CATEGORIES.length - 1], false);
+        }
+
+        // ── Image picker ─────────────────────────────────────────
         btnPickImage.setOnClickListener(v ->
                 imagePickerLauncher.launch(
                         new PickVisualMediaRequest.Builder()
@@ -91,30 +113,51 @@ public class AddItemActivity extends AppCompatActivity {
                 )
         );
 
-        btnSave.setOnClickListener(v -> saveItem());
+        btnSave.setOnClickListener(v -> {
+            if (editItemId >= 0) updateItem(); else saveItem();
+        });
     }
 
-    private void saveItem() {
-        String name     = etItemName.getText()   != null ? etItemName.getText().toString().trim()    : "";
-        String desc     = etDescription.getText()!= null ? etDescription.getText().toString().trim() : "";
-        String location = etLocation.getText()   != null ? etLocation.getText().toString().trim()    : "";
-        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()      : "Lost";
-        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim()  : "Other";
+    // ── Pre-fill helpers ──────────────────────────────────────────
 
-        // Validate required field
+    private void prefillForEdit(int id) {
+        Item item = dbHelper.getItemById(id);
+        if (item == null) { finish(); return; }
+
+        etItemName.setText(item.getName());
+        etDescription.setText(item.getDesc());
+        etLocation.setText(item.getLocation());
+        actvType.setText(item.getType(), false);
+        actvCategory.setText(item.getCategory() != null ? item.getCategory() : "Other", false);
+
+        // Load existing image preview
+        existingImagePath = item.getImagePath();
+        if (!TextUtils.isEmpty(existingImagePath)) {
+            File imgFile = new File(existingImagePath);
+            if (imgFile.exists()) {
+                ivImagePreview.setImageBitmap(BitmapFactory.decodeFile(existingImagePath));
+                btnPickImage.setText(R.string.btn_change_image);
+            }
+        }
+    }
+
+    // ── Save (Add mode) ───────────────────────────────────────────
+
+    private void saveItem() {
+        String name     = getText(etItemName);
+        String desc     = getText(etDescription);
+        String location = getText(etLocation);
+        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()     : "Lost";
+        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim() : "Other";
+
         if (TextUtils.isEmpty(name)) {
             etItemName.setError(getString(R.string.error_item_name_required));
             etItemName.requestFocus();
             return;
         }
 
-        // Copy selected image to internal storage (safe against URI invalidation)
-        String imagePath = null;
-        if (selectedImageUri != null) {
-            imagePath = copyImageToInternal(selectedImageUri);
-        }
+        String imagePath = (selectedImageUri != null) ? copyImageToInternal(selectedImageUri) : null;
 
-        // Attach poster info from user profile
         SharedPreferences prefs = getSharedPreferences(UserSetupActivity.PREFS_NAME, MODE_PRIVATE);
         String posterName    = prefs.getString(UserSetupActivity.KEY_NAME,    "Anonymous");
         String posterContact = prefs.getString(UserSetupActivity.KEY_CONTACT, "");
@@ -122,9 +165,9 @@ public class AddItemActivity extends AppCompatActivity {
         Item item = new Item(0, name, desc, location, type, imagePath,
                              posterName, posterContact, "active",
                              System.currentTimeMillis(), category);
-        long id = dbHelper.insertItem(item);
+        long insertedId = dbHelper.insertItem(item);
 
-        if (id > 0) {
+        if (insertedId > 0) {
             Toast.makeText(this, R.string.toast_item_added, Toast.LENGTH_SHORT).show();
             NotificationHelper.sendNotification(this);
             setResult(RESULT_OK);
@@ -132,6 +175,46 @@ public class AddItemActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, R.string.toast_save_failed, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // ── Update (Edit mode) ────────────────────────────────────────
+
+    private void updateItem() {
+        String name     = getText(etItemName);
+        String desc     = getText(etDescription);
+        String location = getText(etLocation);
+        String type     = actvType.getText()     != null ? actvType.getText().toString().trim()     : "Lost";
+        String category = actvCategory.getText() != null ? actvCategory.getText().toString().trim() : "Other";
+
+        if (TextUtils.isEmpty(name)) {
+            etItemName.setError(getString(R.string.error_item_name_required));
+            etItemName.requestFocus();
+            return;
+        }
+
+        // Resolve image: if user picked a new one → copy it; otherwise keep the existing path
+        String newImagePath = null;
+        if (selectedImageUri != null) {
+            newImagePath = copyImageToInternal(selectedImageUri);
+        }
+        // Pass null for imagePath to updateItem() when no new image was chosen
+        // (DatabaseHelper only overwrites it when non-null)
+
+        boolean ok = dbHelper.updateItem(editItemId, name, desc, location, type, category, newImagePath);
+
+        if (ok) {
+            Toast.makeText(this, "Item updated ✓", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            Toast.makeText(this, "Update failed. Please try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // ── Internal helpers ──────────────────────────────────────────
+
+    private String getText(TextInputEditText et) {
+        return et.getText() != null ? et.getText().toString().trim() : "";
     }
 
     private String copyImageToInternal(Uri uri) {
